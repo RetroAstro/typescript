@@ -329,7 +329,7 @@ enum Direction {
 常量枚举
 
 ```ts
-enum Direction {
+const enum Direction {
   Up,
   Down,
   Left,
