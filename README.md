@@ -30,9 +30,9 @@ let mySquare = createSquare({color: "black"})
 
 ```ts
 interface SquareConfig {
-    color?: string
-    width?: number
-    [propName: string]: any
+  color?: string
+  width?: number
+  [propName: string]: any
 }
 ```
 
@@ -40,16 +40,16 @@ interface SquareConfig {
 
 ```ts
 interface ClockInterface {
-    currentTime: Date
-    setTime(d: Date)
+  currentTime: Date
+  setTime(d: Date)
 }
 
 class Clock implements ClockInterface {
-    currentTime: Date
-    setTime(d: Date) {
-        this.currentTime = d
-    }
-    constructor(h: number, m: number) { }
+  currentTime: Date
+  setTime(d: Date) {
+      this.currentTime = d
+  }
+  constructor(h: number, m: number) { }
 }
 ```
 
@@ -71,13 +71,13 @@ function createClock(ctor: ClockConstructor, hour: number, minute: number): Cloc
 class DigitalClock implements ClockInterface {
   constructor(h: number, m: number) { }
   tick() {
-      console.log("beep beep")
+    console.log("beep beep")
   }
 }
 class AnalogClock implements ClockInterface {
   constructor(h: number, m: number) { }
   tick() {
-      console.log("tick tock")
+    console.log("tick tock")
   }
 }
 
@@ -137,23 +137,23 @@ console.log(howard.getElevatorPitch())
 console.log(howard.name) // 错误
 ```
 
-你可以使用 `readonly`关键字将属性设置为只读的，只读属性必须在声明时或构造函数里被初始化。
+你可以使用 `readonly` 关键字将属性设置为只读的，只读属性必须在声明时或构造函数里被初始化。
 
 ```ts
 class Octopus {
-    readonly name: string
-    readonly numberOfLegs: number = 8
-    constructor (theName: string) {
-        this.name = theName
-    }
+  readonly name: string
+  readonly numberOfLegs: number = 8
+  constructor (theName: string) {
+      this.name = theName
+  }
 }
 
 // or
 
 class Octopus {
-    readonly numberOfLegs: number = 8;
-    constructor(readonly name: string) {
-    }
+  readonly numberOfLegs: number = 8;
+  constructor(readonly name: string) {
+  }
 }
 
 let dad = new Octopus("Man with the 8 strong legs")
@@ -166,27 +166,27 @@ getter / setter 存取器
 let passcode = "secret passcode"
 
 class Employee {
-    private _fullName: string
+  private _fullName: string
 
-    get fullName(): string {
-        return this._fullName
-    }
+  get fullName(): string {
+    return this._fullName
+  }
 
-    set fullName(newName: string) {
-        if (passcode && passcode == "secret passcode") {
-            this._fullName = newName
-        }
-        else {
-            console.log("Error: Unauthorized update of employee!")
-        }
+  set fullName(newName: string) {
+    if (passcode && passcode == "secret passcode") {
+      this._fullName = newName
     }
+    else {
+      console.log("Error: Unauthorized update of employee!")
+    }
+  }
 }
 
 let employee = new Employee()
 employee.fullName = "Bob Smith"
 
 if (employee.fullName) {
-    alert(employee.fullName)
+  alert(employee.fullName)
 }
 ```
 
@@ -222,13 +222,13 @@ let deck: Deck = {
   // NOTE: The function now explicitly specifies that its callee must be of type Deck
   createCardPicker: function(this: Deck) {
       return () => {
-          let pickedCard = Math.floor(Math.random() * 52)
-          let pickedSuit = Math.floor(pickedCard / 13)
+        let pickedCard = Math.floor(Math.random() * 52)
+        let pickedSuit = Math.floor(pickedCard / 13)
 
-          return {
-            suit: this.suits[pickedSuit],
-            card: pickedCard % 13
-          }
+        return {
+          suit: this.suits[pickedSuit],
+          card: pickedCard % 13
+        }
       }
   }
 }
@@ -308,10 +308,10 @@ createInstance(Bee).keeper.hasMask   // typechecks!
 
 ```ts
 enum Direction {
-    Up,
-    Down,
-    Left,
-    Right,
+  Up,
+  Down,
+  Left,
+  Right,
 }
 ```
 
@@ -319,21 +319,21 @@ enum Direction {
 
 ```ts
 enum Direction {
-    Up = "UP",
-    Down = "DOWN",
-    Left = "LEFT",
-    Right = "RIGHT",
+  Up = "UP",
+  Down = "DOWN",
+  Left = "LEFT",
+  Right = "RIGHT",
 }
 ```
 
 常量枚举
 
 ```ts
-const enum Directions {
-    Up,
-    Down,
-    Left,
-    Right
+enum Direction {
+  Up,
+  Down,
+  Left,
+  Right
 }
 
 let directions = [Directions.Up, Directions.Down, Directions.Left, Directions.Right]
@@ -418,7 +418,7 @@ if ((<Fish>pet).swim) {
 type LinkedList<T> = T & { next: LinkedList<T> }
 
 interface Person {
-    name: string
+  name: string
 }
 
 var people: LinkedList<Person>
@@ -432,18 +432,18 @@ var s = people.next.next.next.name
 type Easing = "ease-in" | "ease-out" | "ease-in-out"
 
 class UIElement {
-    animate(dx: number, dy: number, easing: Easing) {
-        if (easing === "ease-in") {
-            // ...
-        }
-        else if (easing === "ease-out") {
-        }
-        else if (easing === "ease-in-out") {
-        }
-        else {
-            // error! should not pass null or undefined.
-        }
+  animate(dx: number, dy: number, easing: Easing) {
+    if (easing === "ease-in") {
+      // ...
     }
+    else if (easing === "ease-out") {
+    }
+    else if (easing === "ease-in-out") {
+    }
+    else {
+      // error! should not pass null or undefined.
+    }
+  }
 }
 
 let button = new UIElement()
@@ -474,10 +474,10 @@ type Shape = Square | Rectangle | Circle
 
 function area(s: Shape) {
   switch (s.kind) {
-      case "square": return s.size * s.size
-      case "rectangle": return s.height * s.width
-      case "circle": return Math.PI * s.radius ** 2
-      default: return undefined
+    case "square": return s.size * s.size
+    case "rectangle": return s.height * s.width
+    case "circle": return Math.PI * s.radius ** 2
+    default: return undefined
   }
 }
 ```
@@ -488,25 +488,25 @@ function area(s: Shape) {
 class BasicCalculator {
   public constructor(protected value: number = 0) { }
   public currentValue(): number {
-      return this.value
+    return this.value
   }
   public add(operand: number): this {
-      this.value += operand
-      return this
+    this.value += operand
+    return this
   }
   public multiply(operand: number): this {
-      this.value *= operand
-      return this
+    this.value *= operand
+    return this
   }
 }
 
 class ScientificCalculator extends BasicCalculator {
   public constructor(value = 0) {
-      super(value)
+    super(value)
   }
   public sin() {
-      this.value = Math.sin(this.value)
-      return this
+    this.value = Math.sin(this.value)
+    return this
   }
 }
 
@@ -525,13 +525,13 @@ function pluck<T, K extends keyof T>(o: T, names: K[]): T[K][] {
 }
 
 interface Person {
-    name: string;
-    age: number;
+  name: string;
+  age: number;
 }
 
 let person: Person = {
-    name: 'Jarid',
-    age: 35
+  name: 'Jarid',
+  age: 35
 }
 
 let strings: string[] = pluck(person, ['name'])
@@ -549,15 +549,15 @@ namespace Validation {
   const numberRegexp = /^[0-9]+$/
 
   export class LettersOnlyValidator implements StringValidator {
-      isAcceptable(s: string) {
-        return lettersRegexp.test(s)
-      }
+    isAcceptable(s: string) {
+      return lettersRegexp.test(s)
+    }
   }
 
   export class ZipCodeValidator implements StringValidator {
-      isAcceptable(s: string) {
-        return s.length === 5 && numberRegexp.test(s)
-      }
+    isAcceptable(s: string) {
+      return s.length === 5 && numberRegexp.test(s)
+    }
   }
 }
 
@@ -581,9 +581,9 @@ Validation.ts
 
 ```ts
 namespace Validation {
-    export interface StringValidator {
-      isAcceptable(s: string): boolean
-    }
+  export interface StringValidator {
+    isAcceptable(s: string): boolean
+  }
 }
 ```
 
@@ -592,12 +592,12 @@ LettersOnlyValidator.ts
 ```ts
 /// <reference path="Validation.ts" />
 namespace Validation {
-    const lettersRegexp = /^[A-Za-z]+$/;
-    export class LettersOnlyValidator implements StringValidator {
-        isAcceptable(s: string) {
-            return lettersRegexp.test(s)
-        }
-    }
+  const lettersRegexp = /^[A-Za-z]+$/;
+  export class LettersOnlyValidator implements StringValidator {
+      isAcceptable(s: string) {
+        return lettersRegexp.test(s)
+      }
+  }
 }
 ```
 
@@ -606,12 +606,12 @@ ZipCodeValidator.ts
 ```ts
 /// <reference path="Validation.ts" />
 namespace Validation {
-    const numberRegexp = /^[0-9]+$/
-    export class ZipCodeValidator implements StringValidator {
-        isAcceptable(s: string) {
-            return s.length === 5 && numberRegexp.test(s)
-        }
-    }
+  const numberRegexp = /^[0-9]+$/
+  export class ZipCodeValidator implements StringValidator {
+      isAcceptable(s: string) {
+        return s.length === 5 && numberRegexp.test(s)
+      }
+  }
 }
 ```
 
@@ -632,15 +632,15 @@ validators["Letters only"] = new Validation.LettersOnlyValidator()
 
 // Show whether each string passed each validator
 for (let s of strings) {
-    for (let name in validators) {
-        console.log(`"${ s }" - ${ validators[name].isAcceptable(s) ? "matches" : "does not match" } ${ name }`)
-    }
+  for (let name in validators) {
+    console.log(`"${ s }" - ${ validators[name].isAcceptable(s) ? "matches" : "does not match" } ${ name }`)
+  }
 }
 ```
 
 ### 装饰器
 
-*装饰器*是一种特殊类型的声明，它能够被附加到类声明、方法、访问符、属性或者参数上。
+装饰器是一种特殊类型的声明，它能够被附加到类声明、方法、访问符、属性或者参数上。
 
 在 TypeScript 里，当多个装饰器应用在一个声明上时会进行如下操作：
 
@@ -649,32 +649,273 @@ for (let s of strings) {
 
 ```ts
 function f() {
-    console.log("f(): evaluated");
-    return function (target, propertyKey: string, descriptor: PropertyDescriptor) {
-        console.log("f(): called");
-    }
+  console.log("f(): evaluated")
+  return function (target, propertyKey: string, descriptor: PropertyDescriptor) {
+    console.log("f(): called")
+  }
 }
 
 function g() {
-    console.log("g(): evaluated");
-    return function (target, propertyKey: string, descriptor: PropertyDescriptor) {
-        console.log("g(): called");
-    }
+  console.log("g(): evaluated")
+  return function (target, propertyKey: string, descriptor: PropertyDescriptor) {
+    console.log("g(): called")
+  }
 }
 
 class C {
-    @f()
-    @g()
-    method() {}
+  @f()
+  @g()
+  method() {}
 }
 
 /*
-  f(): evaluated
-  g(): evaluated
-  g(): called
-  f(): called
+f(): evaluated
+g(): evaluated
+g(): called
+f(): called
 */
 ```
 
+类装饰器
 
+```ts
+@sealed
+class Greeter {
+    greeting: string
+    constructor(message: string) {
+      this.greeting = message
+    }
+    greet() {
+      return "Hello, " + this.greeting
+    }
+}
+
+function sealed(constructor: Function) {
+  Object.seal(constructor)
+  Object.seal(constructor.prototype)
+}
+```
+
+方法装饰器
+
+```ts
+class Greeter {
+  greeting: string
+
+  constructor(message: string) {
+    this.greeting = message
+  }
+
+  @enumerable(false)
+  greet() {
+    return "Hello, " + this.greeting
+  }
+}
+
+function enumerable(value: boolean) {
+  return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+    descriptor.enumerable = value
+  }
+}
+```
+
+访问器装饰器
+
+```ts
+class Point {
+  private _x: number
+  private _y: number
+  constructor(x: number, y: number) {
+    this._x = x
+    this._y = y
+  }
+
+  @configurable(false)
+  get x() { return this._x }
+
+  @configurable(false)
+  get y() { return this._y }
+}
+
+function configurable(value: boolean) {
+  return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+    descriptor.configurable = value
+  }
+}
+```
+
+属性装饰器
+
+```ts
+import "reflect-metadata"
+
+class Greeter {
+  @format("Hello, %s")
+  greeting: string
+
+  constructor(message: string) {
+    this.greeting = message
+  }
+
+  greet() {
+    let formatString = getFormat(this, "greeting")
+    return formatString.replace("%s", this.greeting)
+  }
+}
+
+const formatMetadataKey = Symbol("format")
+
+function format(formatString: string) {
+  return Reflect.metadata(formatMetadataKey, formatString)
+}
+
+function getFormat(target: any, propertyKey: string) {
+  return Reflect.getMetadata(formatMetadataKey, target, propertyKey)
+}
+```
+
+元数据
+
+```ts
+import "reflect-metadata"
+
+class Point {
+  x: number
+  y: number
+}
+
+class Line {
+  private _p0: Point
+  private _p1: Point
+
+  @validate
+  set p0(value: Point) { this._p0 = value }
+  get p0() { return this._p0 }
+
+  @validate
+  set p1(value: Point) { this._p1 = value }
+  get p1() { return this._p1 }
+}
+
+function validate<T>(target: any, propertyKey: string, descriptor: TypedPropertyDescriptor<T>) {
+  let set = descriptor.set
+  descriptor.set = function (value: T) {
+    let type = Reflect.getMetadata("design:type", target, propertyKey)
+    if (!(value instanceof type)) {
+        throw new TypeError("Invalid type.")
+    }
+    set(value)
+  }
+}
+```
+
+控制反转与依赖注入
+
+```ts
+import "reflect-metadata"
+
+type Constructor<T = any> = new (...args: any[]) => T
+
+const Injectable = (): ClassDecorator => target => {}
+
+class OtherService {
+  a = 1
+}
+
+@Injectable()
+class TestService {
+  constructor(public readonly otherService: OtherService) {}
+
+  testMethod() {
+    console.log(this.otherService.a)
+  }
+}
+
+const Factory = <T>(target: Constructor<T>): T => {
+  // 获取所有注入的服务
+  const providers = Reflect.getMetadata('design:paramtypes', target) // [OtherService]
+  const args = providers.map((provider: Constructor) => new provider())
+  return new target(...args)
+}
+
+Factory(TestService).testMethod() // 1
+```
+
+Controller 与 Get / Post 的实现
+
+```ts
+import "reflect-metadata"
+
+const PATH_METADATA = 'path'
+const METHOD_METADATA = 'method'
+
+const Controller = (path: string): ClassDecorator => {
+  return target => {
+    Reflect.defineMetadata(PATH_METADATA, path, target)
+  }
+}
+
+const createMappingDecorator = (method: string) => (path: string): MethodDecorator => {
+  return (target, key, descriptor) => {
+    Reflect.defineMetadata(PATH_METADATA, path, descriptor.value)
+    Reflect.defineMetadata(METHOD_METADATA, method, descriptor.value)
+  }
+}
+
+const Get = createMappingDecorator('GET')
+const Post = createMappingDecorator('POST')
+
+function mapRoute(instance: Object) {
+  const prototype = Object.getPrototypeOf(instance)
+
+  // 筛选出类的 methodName
+  const methodsNames = Object.getOwnPropertyNames(prototype)
+                              .filter(item => !isConstructor(item) && isFunction(prototype[item]))
+
+  return methodsNames.map(methodName => {
+    const fn = prototype[methodName]
+
+    // 取出定义的 metadata
+    const route = Reflect.getMetadata(PATH_METADATA, fn)
+    const method = Reflect.getMetadata(METHOD_METADATA, fn)
+
+    return {
+      route,
+      method,
+      fn,
+      methodName
+    }
+  })
+}
+
+@Controller('/test')
+class SomeClass {
+  @Get('/a')
+  someGetMethod() {
+    return 'hello world'
+  }
+
+  @Post('/b')
+  somePostMethod() {}
+}
+
+Reflect.getMetadata(PATH_METADATA, SomeClass) // '/test'
+
+mapRoute(new SomeClass())
+
+/**
+ * [{
+ *    route: '/a',
+ *    method: 'GET',
+ *    fn: someGetMethod() { ... },
+ *    methodName: 'someGetMethod'
+ *  },{
+ *    route: '/b',
+ *    method: 'POST',
+ *    fn: somePostMethod() { ... },
+ *    methodName: 'somePostMethod'
+ * }]
+ *
+ */
+```
 
