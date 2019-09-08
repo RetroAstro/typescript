@@ -594,9 +594,9 @@ LettersOnlyValidator.ts
 namespace Validation {
   const lettersRegexp = /^[A-Za-z]+$/;
   export class LettersOnlyValidator implements StringValidator {
-      isAcceptable(s: string) {
-        return lettersRegexp.test(s)
-      }
+    isAcceptable(s: string) {
+      return lettersRegexp.test(s)
+    }
   }
 }
 ```
@@ -608,9 +608,9 @@ ZipCodeValidator.ts
 namespace Validation {
   const numberRegexp = /^[0-9]+$/
   export class ZipCodeValidator implements StringValidator {
-      isAcceptable(s: string) {
-        return s.length === 5 && numberRegexp.test(s)
-      }
+    isAcceptable(s: string) {
+      return s.length === 5 && numberRegexp.test(s)
+    }
   }
 }
 ```
@@ -725,6 +725,7 @@ function enumerable(value: boolean) {
 class Point {
   private _x: number
   private _y: number
+  
   constructor(x: number, y: number) {
     this._x = x
     this._y = y
