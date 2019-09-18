@@ -305,15 +305,15 @@ createInstance(Bee).keeper.hasMask   // typechecks!
 ```ts
 // 创建一个泛型类
 class Queue<T> {
-  private data :T[] = [];
-  push = (item: T) => this.data.push(item);
-  pop = (): T | undefined => this.data.shift();
+  private data: T[] = []
+  push = (item: T) => this.data.push(item)
+  pop = (): T | undefined => this.data.shift()
 }
 
 // 简单的使用
-const queue = new Queue<number>();
-queue.push(0);
-queue.push('1'); // Error：不能推入一个 `string`，只有 number 类型被允许
+const queue = new Queue<number>()
+queue.push(0)
+queue.push('1') // Error：不能推入一个 `string`，只有 number 类型被允许
 ```
 
 配合 axios 使用
@@ -325,39 +325,39 @@ export interface ResponseData<T = any> {
    * 状态码
    * @type { number }
    */
-  code: number;
+  code: number
 
   /**
    * 数据
    * @type { T }
    */
-  result: T;
+  result: T
 
   /**
    * 消息
    * @type { string }
    */
-  message: string;
+  message: string
 }
 ```
 
 ```ts
 // 在 axios.ts 文件中对 axios 进行了处理，例如添加通用配置、拦截器等
-import Ax from './axios';
+import Ax from './axios'
 
-import { ResponseData } from './interface.ts';
+import { ResponseData } from './interface.ts'
 
 export function getUser<T>() {
   return Ax.get<ResponseData<T>>('/somepath')
     .then(res => res.data)
-    .catch(err => console.error(err));
+    .catch(err => console.error(err))
 }
 ```
 
 ```ts
 interface User {
-  name: string;
-  age: number;
+  name: string
+  age: number
 }
 
 async function test() {
@@ -367,7 +367,7 @@ async function test() {
   //  result: { name: string, age: number },
   //  message: string
   // }
-  const user = await getUser<User>();
+  const user = await getUser<User>()
 }
 ```
 
@@ -1303,5 +1303,189 @@ mapRoute(new SomeClass())
  * }]
  *
  */
+```
+
+### 名义化类型
+
+```ts
+// 泛型 Id 类型
+type Id<T extends string> = {
+  type: T
+  value: string
+}
+
+// 特殊的 Id 类型
+type FooId = Id<'foo'>
+type BarId = Id<'bar'>
+
+// 可选：构造函数
+const createFoo = (value: string): FooId => ({ type: 'foo', value })
+const createBar = (value: string): BarId => ({ type: 'bar', value })
+
+let foo = createFoo('sample')
+let bar = createBar('sample')
+
+foo = bar // Error
+foo = foo // Okey
+```
+
+### 状态函数
+
+```ts
+const { called } = new class {
+  count = 0
+  called = () => {
+    this.count++
+    console.log(`Called : ${this.count}`)
+  }
+}()
+
+called() // Called : 1
+called() // Called : 2
+```
+
+### 柯里化
+
+```ts
+// 一个柯里化函数
+let add = (x: number) => (y: number) => x + y
+
+// 简单使用
+add(123)(456)
+
+// 部分应用
+let add123 = add(123)
+
+// fully apply the function
+add123(456)
+```
+
+### 单例模式 
+
+```ts
+class Singleton {
+  private static instance: Singleton
+  private constructor() {
+    // ..
+  }
+
+  public static getInstance() {
+    if (!Singleton.instance) {
+      Singleton.instance = new Singleton()
+    }
+
+    return Singleton.instance
+  }
+
+  someMethod() {}
+}
+
+let someThing = new Singleton() // Error: constructor of 'singleton' is private
+
+let instacne = Singleton.getInstance() // do some thing with the instance
+```
+
+```ts
+namespace Singleton {
+  // .. 其他初始化的代码
+  
+  export function someMethod() {}
+}
+
+// 使用
+Singleton.someMethod()
+```
+
+### TypedEvent
+
+```ts
+export interface Listener<T> {
+  (event: T): any
+}
+
+export interface Disposable {
+  dispose(): any
+}
+
+export class TypedEvent<T> {
+  private listeners: Listener<T>[] = []
+  private listenersOncer: Listener<T>[] = []
+
+  public on = (listener: Listener<T>): Disposable => {
+    this.listeners.push(listener)
+
+    return {
+      dispose: () => this.off(listener)
+    }
+  }
+
+  public once = (listener: Listener<T>): void => {
+    this.listenersOncer.push(listener)
+  }
+
+  public off = (listener: Listener<T>) => {
+    const callbackIndex = this.listeners.indexOf(listener)
+    if (callbackIndex > -1) this.listeners.splice(callbackIndex, 1)
+  }
+
+  public emit = (event: T) => {
+    this.listeners.forEach(listener => listener(event))
+
+    this.listenersOncer.forEach(listener => listener(event))
+
+    this.listenersOncer = []
+  }
+
+  public pipe = (te: TypedEvent<T>): Disposable => {
+    return this.on(e => te.emit(e))
+  }
+}
+```
+
+```ts
+const onFoo = new TypedEvent<Foo>()
+const onBar = new TypedEvent<Bar>()
+
+// Emit:
+onFoo.emit(foo)
+onBar.emit(bar)
+
+// Listen:
+onFoo.on(foo => console.log(foo))
+onBar.on(bar => console.log(bar))
+```
+
+### infer 使用
+
+```ts
+type ParamType<T> = T extends (param: infer P) => any ? P : T
+
+interface User {
+  name: string
+  age: number
+}
+
+type Func = (user: User) => void
+
+type Param = ParamType<Func> // Param = User
+type AA = ParamType<string> // string
+```
+
+tuple 转 union 
+
+```ts
+type TTuple = [string, number]
+type TArray = Array<string | number>
+
+type Res = TTuple extends TArray ? true : false // true
+type ResO = TArray extends TTuple ? true : false // false
+```
+
+```ts
+type ElementOf<T> = T extends Array<infer E> ? E : never
+
+type TTuple = [string, number]
+
+type ToUnion = ElementOf<TTuple> // string | number
 ```
 
