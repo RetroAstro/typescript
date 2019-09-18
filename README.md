@@ -302,6 +302,75 @@ createInstance(Lion).keeper.nametag  // typechecks!
 createInstance(Bee).keeper.hasMask   // typechecks!
 ```
 
+```ts
+// 创建一个泛型类
+class Queue<T> {
+  private data :T[] = [];
+  push = (item: T) => this.data.push(item);
+  pop = (): T | undefined => this.data.shift();
+}
+
+// 简单的使用
+const queue = new Queue<number>();
+queue.push(0);
+queue.push('1'); // Error：不能推入一个 `string`，只有 number 类型被允许
+```
+
+配合 axios 使用
+
+```ts
+// 请求接口数据
+export interface ResponseData<T = any> {
+  /**
+   * 状态码
+   * @type { number }
+   */
+  code: number;
+
+  /**
+   * 数据
+   * @type { T }
+   */
+  result: T;
+
+  /**
+   * 消息
+   * @type { string }
+   */
+  message: string;
+}
+```
+
+```ts
+// 在 axios.ts 文件中对 axios 进行了处理，例如添加通用配置、拦截器等
+import Ax from './axios';
+
+import { ResponseData } from './interface.ts';
+
+export function getUser<T>() {
+  return Ax.get<ResponseData<T>>('/somepath')
+    .then(res => res.data)
+    .catch(err => console.error(err));
+}
+```
+
+```ts
+interface User {
+  name: string;
+  age: number;
+}
+
+async function test() {
+  // user 被推断出为
+  // {
+  //  code: number,
+  //  result: { name: string, age: number },
+  //  message: string
+  // }
+  const user = await getUser<User>();
+}
+```
+
 ### 枚举
 
 数字枚举
@@ -412,7 +481,62 @@ if ((<Fish>pet).swim) {
 }
 ```
 
-类型别名
+字符串字面量联合类型
+
+```ts
+// 用于创建字符串列表映射至 `K: V` 的函数
+function strEnum<T extends string>(o: Array<T>): { [K in T]: K } {
+  return o.reduce((res, key) => {
+    res[key] = key
+    return res
+  }, Object.create(null))
+}
+
+// 创建 K: V
+const Direction = strEnum(['North', 'South', 'East', 'West'])
+
+// 创建一个类型
+type Direction = keyof typeof Direction
+
+// 简单的使用
+let sample: Direction
+
+sample = Direction.North // Okay
+sample = 'North' // Okay
+sample = 'AnythingElse' // ERROR!
+```
+
+keyof 使用
+
+```ts
+const data = {
+  a: 3,
+  hello: 'world'
+}
+
+function get(o: object, name: string) {
+  return o[name]
+}
+
+// keyof 能够捕获一个类型的键
+function get<T extends object, K extends keyof T>(o: T, name: K): T[K] {
+  return o[name]
+}
+```
+
+使用 is 判断值的类型
+
+```ts
+function isAxiosError (error: any): error is AxiosError {
+  return error.isAxiosError
+}
+
+if (isAxiosError(err)) {
+  code = `Axios-${err.code}`
+}
+```
+
+类型别名 
 
 ```ts
 type LinkedList<T> = T & { next: LinkedList<T> }
@@ -525,8 +649,8 @@ function pluck<T, K extends keyof T>(o: T, names: K[]): T[K][] {
 }
 
 interface Person {
-  name: string;
-  age: number;
+  name: string
+  age: number
 }
 
 let person: Person = {
@@ -537,7 +661,268 @@ let person: Person = {
 let strings: string[] = pluck(person, ['name'])
 ```
 
-### 命名空间
+Freshness
+
+```tsx
+// 假设
+interface State {
+  foo?: string
+  bar?: string
+}
+
+// 你可能想做
+this.setState({ foo: 'Hello' }) // Yay works fine!
+
+// 由于 Freshness，你也可以防止错别字
+this.setState({ foos: 'Hello' }} // Error: 对象只能指定已知属性
+
+// 仍然会有类型检查
+this.setState({ foo: 123 }} // Error: 无法将 number 类型赋值给 string 类型
+```
+
+使用 redux
+
+```ts
+import { createStore } from 'redux'
+
+type Action =
+  | {
+      type: 'INCREMENT'
+    }
+  | {
+      type: 'DECREMENT'
+    }
+
+function counter(state = 0, action: Action) {
+  switch (action.type) {
+    case 'INCREMENT':
+      return state + 1
+    case 'DECREMENT':
+      return state - 1
+    default:
+      return state
+  }
+}
+
+let store = createStore(counter)
+
+store.subscribe(() => console.log(store.getState()))
+
+store.dispatch({ type: 'INCREMENT' })
+// 1
+store.dispatch({ type: 'INCREMENT' })
+// 2
+store.dispatch({ type: 'DECREMENT' })
+// 1
+```
+
+索引签名
+
+```ts
+type Index = 'a' | 'b' | 'c'
+type FromIndex = { [k in Index]?: number }
+
+const good: FromIndex = { b: 1, c: 2 }
+
+// Error:
+// `{ b: 1, c: 2, d: 3 }` 不能分配给 'FromIndex'
+// 对象字面量只能指定已知类型，'d' 不存在 'FromIndex' 类型上
+const bad: FromIndex = { b: 1, c: 2, d: 3 }
+
+// 变量的规则一般可以延迟被推断
+type FromSomeIndex<K extends string> = { [key in K]: number }
+```
+
+索引签名的嵌套
+
+```ts
+interface NestedCSS {
+  color?: string;
+  nest?: {
+    [selector: string]: NestedCSS;
+  };
+}
+
+const example: NestedCSS = {
+  color: 'red',
+  nest: {
+    '.subclass': {
+      color: 'blue'
+    }
+  }
+}
+
+const failsSliently: NestedCSS {
+  colour: 'red'  // TS Error: 未知属性 'colour'
+}
+```
+
+捕获键的名称
+
+```ts
+const colors = {
+  red: 'red',
+  blue: 'blue'
+};
+
+type Colors = keyof typeof colors;
+
+let color: Colors; // color 的类型是 'red' | 'blue'
+color = 'red'; // ok
+color = 'blue'; // ok
+color = 'anythingElse'; // Error
+```
+
+混合 ( mixins )
+
+```ts
+// 所有 mixins 都需要
+type Constructor<T = {}> = new (...args: any[]) => T
+
+/////////////
+// mixins 例子
+////////////
+
+// 添加属性的混合例子
+function TimesTamped<TBase extends Constructor>(Base: TBase) {
+  return class extends Base {
+    timestamp = Date.now()
+  }
+}
+
+// 添加属性和方法的混合例子
+function Activatable<TBase extends Constructor>(Base: TBase) {
+  return class extends Base {
+    isActivated = false
+
+    activate() {
+      this.isActivated = true
+    }
+
+    deactivate() {
+      this.isActivated = false
+    }
+  }
+}
+
+///////////
+// 组合类
+///////////
+
+// 简单的类
+class User {
+  name = ''
+}
+
+// 添加 TimesTamped 的 User
+const TimestampedUser = TimesTamped(User)
+
+// Tina TimesTamped 和 Activatable 的类
+const TimestampedActivatableUser = TimesTamped(Activatable(User))
+
+//////////
+// 使用组合类
+//////////
+
+const timestampedUserExample = new TimestampedUser()
+console.log(timestampedUserExample.timestamp)
+
+const timestampedActivatableUserExample = new TimestampedActivatableUser()
+console.log(timestampedActivatableUserExample.timestamp)
+console.log(timestampedActivatableUserExample.isActivated)
+```
+
+thisType 使用
+
+```ts
+// Compile with --noImplicitThis
+
+type Point = {
+  x: number
+  y: number
+  moveBy(dx: number, dy: number): void
+}
+
+let p: Point = {
+  x: 10,
+  y: 20,
+  moveBy(dx, dy) {
+    this.x += dx // this has type Point
+    this.y += dy // this has type Point
+  }
+}
+
+let foo = {
+  x: 'hello',
+  f(n: number) {
+    this // { x: string, f(n: number): void }
+  }
+}
+
+let bar = {
+  x: 'hello',
+  f(this: { message: string }) {
+    this // { message: string }
+  }
+}
+```
+
+```ts
+// Compile with --noImplicitThis
+
+type ObjectDescriptor<D, M> = {
+  data?: D
+  methods?: M & ThisType<D & M> // Type of 'this' in methods is D & M
+}
+
+function makeObject<D, M>(desc: ObjectDescriptor<D, M>): D & M {
+  let data: object = desc.data || {}
+  let methods: object = desc.methods || {}
+  return { ...data, ...methods } as D & M
+}
+
+let obj = makeObject({
+  data: { x: 0, y: 0 },
+  methods: {
+    moveBy(dx: number, dy: number) {
+      this.x += dx // Strongly typed this
+      this.y += dy // Strongly typed this
+    }
+  }
+})
+
+obj.x = 10
+obj.y = 20
+obj.moveBy(5, 5)
+```
+
+在上面的例子中，`makeObject` 参数中的对象属性 `methods` 具有包含 `ThisType<D & M>` 的上下文类型，因此对象中 `methods` 属性下的方法的 `this` 类型为 `{ x: number, y: number } & { moveBy(dx: number, dy: number): number }`。
+
+`ThisType<T>` 的接口，在 `lib.d.ts` 只是被声明为空的接口，除了可以在对象字面量上下文中可以被识别以外，该接口的作用等同于任意空接口。
+
+### 命名空间 
+
+```ts
+(function (Utility) {
+  // 添加属性至 Utility
+})(Utility || Utility = {})
+```
+
+```ts
+namespace Utility {
+  export function log(msg) {
+    console.log(msg);
+  }
+  export function error(msg) {
+    console.log(msg);
+  }
+}
+
+// usage
+Utility.log('Call me');
+Utility.error('maybe');
+  
+```
 
 ```ts
 namespace Validation {
